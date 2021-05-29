@@ -69,3 +69,50 @@ for k = 0:(n_step - 1)
     % update s_init and u_init
     s_init = s;
 end
+iters = 1;
+Q = [100 0 0 0;
+    0 1 0 0;
+    0 0 0.1 0;
+    0 0 0 0.1];
+Q = 0.01*Q;
+R = 0.001;
+Q_bar = [];
+for i = 1:n_step
+   Q_bar = [Q_bar; zeros(ns, (i-1) * ns) Q zeros(ns, (n_step-i)* ns)];
+end
+R_bar = [];
+for i = 1:n_step
+   R_bar = [R_bar; zeros(nu, (i-1) * nu) R zeros(nu, (n_step-i)* nu)];
+end
+% INPUT
+tol = 1e-8;
+w_init = u_guess;
+lambda_init = 0;
+mu_init = 0;
+sigma_coeff = 2;
+sigma_init = 1;
+damping_coeff = 0.5;
+
+hessian_approx = 'EXACT';
+linesearch = 'MERIT';
+
+
+% optimization variables and constraints dimensions
+nw = length(w_init);
+ng = length(lambda_init);
+nh = length(mu_init);
+
+
+w = sym('w', [nx 1]);
+lambda = sym('lambda', [ng 1]);
+mu = sym('mu', [nh 1]);
+sigma = sym('sigma');
+
+% set the cost symbolic expression f_sym as a function of x
+f_sym = w.'*(S_bar.'*Q_bar);
+% set the equality constraints (
+% g_sym = [x(1)^2 - 2*x(2)^3 - x(2) - 10*x(3); x(2) + 10*x(3)];
+g_sym = 1 - x.' * x;
+h_sym = 0.5-x(1)^2-x(2);
+% set merit function
+m1_sym = f_sym + sigma * norm(g_sym, 1);
