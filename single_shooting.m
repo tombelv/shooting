@@ -1,13 +1,18 @@
 commandwindow
 
-s_init = [0;0;0;0];
+s_init = [2;0;0;0];
 nu = 1;
+% problem parameters
+M = 1;
+m = 1;
+l = 1;
+g = 9.81;
 % optimization horizon
 t_init = 0;
 t_fin = 2;
 n_step = 20;
 d_step = (t_fin-t_init)/n_step;
-u_guess = zeros(nu, n_step-1);
+u_guess = zeros(nu, n_step);
 % integration horizon
 % each optimization interval do n_int integration steps of duration h
 n_int = 10;
@@ -18,7 +23,10 @@ syms t
 u = sym('u', [nu 1]);
 s = sym('s', [ns 1]);
 
-F_sym = [-16*s(1)+12*s(2)+16*cos(t)-13*sin(t)+u; 16*s(1)-9*s(2)-11*cos(t)+9*sin(t)+u];
+F_sym = [s(3); 
+    s(4); 
+    (m*l*sin(s(2))*s(4)^2 + m*g*cos(s(2))*sin(s(2)) + u) / (M+m-m*(cos(s(2)))^2);
+    -((m*l*cos(s(2))*sin(s(2))*s(4)^2 + (M+m)*g*sin(s(2)) + u*cos(s(2))) / (l*(M+m-m*(cos(s(2)))^2)))];
 dFds_sym = jacobian(F_sym, s);
 dFdu_sym = jacobian(F_sym, u);
 
@@ -47,20 +55,17 @@ matlabFunction(dsdu_sym, 'vars', {t,s,u}, 'file', 'dsdu');
 % 
 
 % write S_bar adding elements
-S_bar = zeros(nx, nu);
+dxdw = zeros(ns, n_step * nu);
 T_bar = [];
-
+S_bar = [];
 % single shooting
 for k = 0:(n_step - 1)
-    u_init = u_guess(k, :);
+    u_init = u_guess(:, k+1);
     tk = t_init + d_step*k;
-    [~,fx,fu] = F(tk,s_init,u_init);
-    [s,A,~] = expl_rk4(tk,s_init,u_init,eye(ns),zeros(ns,nu),h,n_int);
+    [s,A,B] = expl_rk4(tk,s_init,u_init,eye(ns),zeros(ns,nu),h,n_int);
     T_bar = [T_bar; A];
-    dxdw = fx * S_bar(end-nx+1:end, :) + [zeros(nx, k * nu); fu; zeros(nx, (n_step-k-1) * nu)];
+    dxdw = A * dxdw + [zeros(ns, k * nu) B zeros(ns, (n_step-k-1) * nu)];
     S_bar = [S_bar; dxdw];
     % update s_init and u_init
     s_init = s;
 end
-% remove from S_bar elements relative to x0
-S_bar = S_bar(nx + 1:end, :);
