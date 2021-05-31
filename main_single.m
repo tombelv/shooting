@@ -60,7 +60,7 @@ matlabFunction(dsdu_sym, 'vars', {t,s,u}, 'file', 'dsdu');
 iters = 1;
 
 % INPUT
-tol = 1e-4;
+tol = 1e-8;
 w_init = u_guess;
 nw = length(w_init);
 sigma_coeff = 2;
@@ -171,7 +171,6 @@ while kkt_violation > tol
     
     iters = iters + 1;
     
-    
 end
 %%
 
@@ -185,7 +184,15 @@ end
 plot(state_trajectory.')
     
     
-    
-    
-    
-    
+figure(2)
+plot(w_history, 'lineWidth', 1.5, 'Marker', 'x')
+xlabel("Iteration")
+title("w history")
+figure(3)
+plot(alpha_history, 'lineWidth', 1.5, 'Marker', 'x')
+xlabel("Iteration")
+title("alpha history")
+figure(4)
+semilogy(kkt_violation_history, 'lineWidth', 1.5), grid on
+xlabel("Iteration")
+title("KKT violation")
