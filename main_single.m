@@ -60,7 +60,7 @@ matlabFunction(dsdu_sym, 'vars', {t,s,u}, 'file', 'dsdu');
 iters = 1;
 
 % INPUT
-tol = 1e-8;
+tol = 1e-4;
 w_init = u_guess;
 nw = length(w_init);
 sigma_coeff = 2;
@@ -121,7 +121,7 @@ while kkt_violation > tol
     switch linesearch
         case 'MERIT'
             % perform linesearch with merit function
-            nablam1_ = nablaf_.' * deltaw_ - sigma_*norm(g_, 1);
+            nablam1_ = nablaf_.' * deltaw_ - sigma_*norm(g_, 1) - sigma_*norm(max(h_, 0), 1);
             alpha = linesearch_merit(w_, sigma_, m1_, nablam1_,deltaw_);
         case 'ARMIJO'
             % perform linesearch with Armijo condition
