@@ -73,7 +73,7 @@ w = sym('w', [nw; 1]);
 sigma = sym('sigma');
 
 % set the equality constraints
-h_sym = [eye(nw); -eye(nw)]*w - ones(nw*2, 1)*u_max;
+h_sym = [eye(nw); -eye(nw)]*w - ones(nw*2, 1)*u_max ;
 
 % optimization variables and constraints dimensions
 ng = 4;
@@ -131,7 +131,6 @@ while kkt_violation > tol
             alpha = linesearch_armijo(w_, f_, nablaf_,deltaw_);
     end
 
-    
 
     w_ = w_ + alpha*deltaw_;
     lambda_ = (1-alpha)*lambda_ + alpha*lambda_plus;
@@ -142,7 +141,9 @@ while kkt_violation > tol
     B_ = B(w_,lambda_, mu_);
     nablaf_ = nablaf(w_);
     nablag_ = nablag(w_);
+    nablah_ = nablah(w_);
     g_ = g(w_);
+    h_ = h(w_);
     f_ = f(w_);
     nablaLagrangian_ = nablaLagrangian(w_,lambda_, mu_);
     if (sigma_coeff*lambda_ > sigma_) 
@@ -172,3 +173,19 @@ while kkt_violation > tol
     
     
 end
+%%
+
+state_trajectory = [s_init];
+for k=1:n_step
+    tk = t_init + k*d_step;
+    [s,~,~] = expl_rk4(tk,state_trajectory(:,k),w_(k),eye(ns),zeros(ns,nu),int_step,n_int);
+    state_trajectory = [state_trajectory, s];
+end
+
+plot(state_trajectory.')
+    
+    
+    
+    
+    
+    
