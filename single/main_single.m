@@ -1,5 +1,8 @@
 commandwindow
 clear all
+
+addpath('..')
+
 global n_step d_step t_init s_init s_fin ns nu n_int int_step state_coeff input_coeff
 s_init = [0;0;0;0];
 s_fin = [2;0;0;0];
