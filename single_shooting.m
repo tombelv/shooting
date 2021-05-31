@@ -1,5 +1,5 @@
 function [R, nablaR] = single_shooting(u_guess, s0)
-    global n_step ns t_init nu n_int int_step state_coeff input_coeff d_step
+    global n_step ns t_init nu n_int int_step state_coeff input_coeff d_step s_fin
     state_coeff_sqrt = sqrt(state_coeff);
     input_coeff_sqrt = sqrt(input_coeff);
     
@@ -20,6 +20,6 @@ function [R, nablaR] = single_shooting(u_guess, s0)
         % update s_init and u_init
         sk = s;
         R((k*(ns+nu)+ns+1):(k*(ns+nu)+ns+nu)) = input_coeff_sqrt * u_init;
-        R(((k+1)*(ns+nu)+1):((k+1)*(ns+nu)+ns)) = state_coeff_sqrt * sk;
+        R(((k+1)*(ns+nu)+1):((k+1)*(ns+nu)+ns)) = state_coeff_sqrt * (sk-s_fin);
     end
 end
