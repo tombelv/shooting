@@ -11,7 +11,7 @@ function [R, nablaR] = single_shooting(u_guess, s0)
     nablaR(:,1:ns) = dxdw.';
     % single shooting
     for k = 0:(n_step - 1)
-        u_init = u_guess(k+1, :);
+        u_init = u_guess(k*nu+1);
         tk = t_init + d_step*k;
         [s,A,B] = expl_rk4(tk,sk,u_init,eye(ns),zeros(ns,nu),int_step,n_int);
         dxdw = A * dxdw + [zeros(ns, k * nu) B zeros(ns, (n_step-k-1) * nu)];

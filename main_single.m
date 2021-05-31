@@ -11,9 +11,9 @@ l = 1;
 gravity = 9.81;
 u_max = 20;
 state_coeff = [100 0 0 0;
-    0 1 0 0;
-    0 0 0.1 0;
-    0 0 0 0.1];
+                 0 1 0 0;
+                 0 0 0.1 0;
+                 0 0 0 0.1];
 state_coeff = 0.01*state_coeff;
 input_coeff = 0.001;
 % optimization horizon
@@ -21,7 +21,7 @@ t_init = 0;
 t_fin = 2;
 n_step = 20;
 d_step = (t_fin-t_init)/n_step;
-u_guess = 0.5 * ones(n_step * nu, 1);
+u_guess = zeros(n_step * nu, 1);
 % integration horizon
 % each optimization interval do n_int integration steps of duration
 % int_step
@@ -67,7 +67,7 @@ sigma_coeff = 2;
 sigma_init = 1;
 damping_coeff = 0.5;
 
-linesearch = 'ARMIJO';
+linesearch = 'MERIT';
 
 w = sym('w', [nw; 1]);
 sigma = sym('sigma');
@@ -101,7 +101,7 @@ nablah_ = nablah(w_);
 g_ = g(w_);
 f_ = f(w_);
 h_ = h(w_);
-%m1_ = m1(w_, sigma_);
+m1_ = m1(w_, sigma_);
 
 nablaLagrangian_ = nablaLagrangian(w_,lambda_, mu_);
 
@@ -148,7 +148,7 @@ while kkt_violation > tol
     if (sigma_coeff*lambda_ > sigma_) 
         sigma_ = sigma_coeff*lambda_;
     end
-    %m1_ = m1(w_, sigma_);
+    m1_ = m1(w_, sigma_);
     kkt_violation = norm([nablaLagrangian_; g_; max(zeros(nh, 1), h_)], inf);
     
     
@@ -161,7 +161,7 @@ while kkt_violation > tol
     disp("lambda: " + lambda_)
     disp("cost: " + f_)
     disp("alpha: " + alpha)
-    %disp("m1: " + m1_)
+    disp("m1: " + m1_)
     
     w_history = [w_history, w_];
     kkt_violation_history = [kkt_violation_history, kkt_violation];
