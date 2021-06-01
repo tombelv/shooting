@@ -36,31 +36,24 @@ s = sym('s', [ns 1]);
 n_int = 10;
 int_step = d_step / n_int;
 
-u_guess = zeros(n_step * nu, 1);
-x_guess = kron(ones(n_step+1,1), s_fin);
-
 iters = 1;
 
 % INPUT
 tol = 1e-4;
-w_init = [x_guess; u_guess];
+u_init = 0;
+w_init = s_fin;
+for i=1:n_step
+    w_init = [w_init; u_init; s_init];
+end
 nw = length(w_init);
-sigma_coeff = 2;
-sigma_init = 10;
+sigma_coeff = 4;
+sigma_init = 1;
 damping_coeff = 0.5;
 
 linesearch = 'MERIT';
 
 w = sym('w', [nw; 1]);
 sigma = sym('sigma');
-
-
-
-
-
-
-
-
 
 F_sym = [s(3); 
     s(4); 
@@ -86,10 +79,12 @@ matlabFunction(s_sym, 'vars', {t,s,u}, 'file', 's');
 matlabFunction(dsds_sym, 'vars', {t,s,u}, 'file', 'dsds');
 matlabFunction(dsdu_sym, 'vars', {t,s,u}, 'file', 'dsdu');
 
-
-
 % set the equality constraints
-h_sym = [eye(nu*n_step); -eye(nu*n_step)]*w(ns*(n_step+1)+1:end) - ones(nu*n_step*2, 1)*u_max ;
+w_input = w(ns+1:ns+nu);
+for i = 1:n_step-1
+    w_input = [w_input; w(i*(ns+nu)+ns+1:i*(ns+nu)+ns+nu)];
+end
+h_sym = [eye(nu*n_step); -eye(nu*n_step)]*w_input - ones(nu*n_step*2, 1)*u_max ;
 
 % optimization variables and constraints dimensions
 ng = ns*(n_step+2);
@@ -190,8 +185,13 @@ end
 %%
 
 
-plot(reshape(w_(1:ns*(n_step+1)).',[n_step+1, ns]))
-    
+%extract w_state
+figure(1)
+state_trajectory = w_(1:ns);
+for i = 1:n_step
+    state_trajectory = [state_trajectory, w_(i*(ns+nu)+1:i*(ns+nu)+ns)];
+end
+plot(state_trajectory.')
     
 figure(2)
 plot(w_history, 'lineWidth', 1.5, 'Marker', 'x')
