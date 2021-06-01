@@ -46,7 +46,7 @@ for i=1:n_step
     w_init = [w_init; u_init; s_init];
 end
 nw = length(w_init);
-sigma_coeff = 4;
+sigma_coeff = 2;
 sigma_init = 1;
 damping_coeff = 0.5;
 
@@ -192,9 +192,13 @@ for i = 1:n_step
     state_trajectory = [state_trajectory, w_(i*(ns+nu)+1:i*(ns+nu)+ns)];
 end
 plot(state_trajectory.')
-    
+title("input history")
 figure(2)
-plot(w_history, 'lineWidth', 1.5, 'Marker', 'x')
+input_trajectory = w_(ns+1:ns+nu);
+for i = 1:n_step-1
+    input_trajectory = [input_trajectory; w_(i*(ns+nu)+ns+1:(i+1)*(ns+nu))];
+end
+plot(input_trajectory, 'lineWidth', 1.5, 'Marker', 'x')
 xlabel("Iteration")
 title("w history")
 figure(3)
