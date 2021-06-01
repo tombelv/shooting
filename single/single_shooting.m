@@ -1,12 +1,12 @@
 function [R, nablaR] = single_shooting(u_guess, s0)
-    global n_step ns t_init nu n_int int_step state_coeff input_coeff d_step s_fin
+    global n_step ns t_init nu n_int int_step state_coeff input_coeff d_step s_fin s_init
     state_coeff_sqrt = sqrt(state_coeff);
     input_coeff_sqrt = sqrt(input_coeff);
     
     R = zeros((n_step+1)*ns + n_step*nu, 1);
     nablaR = zeros(n_step*nu, (n_step+1)*ns + n_step*nu, 1);
     sk = s0;
-    R(1:ns) = state_coeff_sqrt * sk;
+    R(1:ns) = state_coeff_sqrt * (sk-s_init);
     dxdw = zeros(ns, n_step * nu);
     nablaR(:,1:ns) = dxdw.';
     % single shooting
