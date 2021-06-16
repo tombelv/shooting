@@ -36,6 +36,7 @@ function [g_, nablag_] = g(w_guess)
     
     % END CONSTRAINT
     k=k+1;
+    dxdw = 0*dxdw;
     g_(end-ns+1:end) = x_init - s_fin;
     dxdw(:,end-ns+1:end) = eye(ns);
     nablag_(k*ns+1:(k+1)*ns, :) = dxdw;

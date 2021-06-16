@@ -11,3 +11,5 @@ drds.m
 drdu.m
 h.m
 nablah.m
+*.eps
+*.mat

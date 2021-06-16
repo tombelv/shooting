@@ -5,24 +5,24 @@ addpath('..')
 
 global n_step d_step t_init s_init s_fin ns nu n_int int_step state_coeff input_coeff
 s_init = [0;0;0;0];
-s_fin = [2;0;0;0];
+s_fin = [0;pi;0;0];
 nu = 1;
 % problem parameters
 M = 1;
 m = 1;
 l = 1;
 gravity = 9.81;
-u_max = 20;
+u_max = 40;
 state_coeff = [100 0 0 0;
                  0 1 0 0;
-                 0 0 0.1 0;
+               0 0 0.1 0;
                  0 0 0 0.1];
 state_coeff = 0.01*state_coeff;
 input_coeff = 0.001;
 % optimization horizon
 t_init = 0;
 t_fin = 2;
-n_step = 20;
+n_step = 40;
 d_step = (t_fin-t_init)/n_step;
 
 ns = length(s_init);
@@ -35,20 +35,23 @@ s = sym('s', [ns 1]);
 % int_step
 n_int = 10;
 int_step = d_step / n_int;
-
+times = linspace(t_init,t_fin,n_step+1);
 
 iters = 1;
 
 % INPUT
 tol = 1e-4;
 u_init = 0;
-w_init = s_fin;
+w_init = s_init;
 for i=1:n_step
     w_init = [w_init; u_init; s_init];
 end
+% for i=1:n_step
+%     w_init = [w_init; u_init; s_fin];
+% end
 nw = length(w_init);
 sigma_coeff = 2;
-sigma_init = 1;
+sigma_init = 0;
 damping_coeff = 0.5;
 
 linesearch = 'MERIT';
@@ -80,7 +83,7 @@ matlabFunction(s_sym, 'vars', {t,s,u}, 'file', 's');
 matlabFunction(dsds_sym, 'vars', {t,s,u}, 'file', 'dsds');
 matlabFunction(dsdu_sym, 'vars', {t,s,u}, 'file', 'dsdu');
 
-% set the equality constraints
+% set the inequality constraints
 w_input = w(ns+1:ns+nu);
 for i = 1:n_step-1
     w_input = [w_input; w(i*(ns+nu)+ns+1:i*(ns+nu)+ns+nu)];
@@ -149,6 +152,7 @@ while kkt_violation > tol
     mu_ = (1-alpha)*mu_ + alpha*mu_plus;
 
 
+
     
     B_ = B(w_,lambda_, mu_);
     nablaf_ = nablaf(w_);
@@ -157,9 +161,15 @@ while kkt_violation > tol
     h_ = h(w_);
     f_ = f(w_);
     nablaLagrangian_ = nablaLagrangian(w_,lambda_, mu_);
-    if (sigma_coeff*lambda_ > sigma_) 
-        sigma_ = sigma_coeff*lambda_;
+%     if (sigma_coeff*norm(lambda_,inf) > sigma_) 
+%         sigma_ = sigma_coeff*norm(lambda_,inf);
+%     end
+    
+    sigma_ = sigma_init;
+    if (norm(lambda_,inf) > sigma_) 
+        sigma_ = norm(lambda_,inf)+1;
     end
+    
     m1_ = m1(w_, sigma_);
     kkt_violation = norm([nablaLagrangian_; g_], inf);
     
@@ -174,6 +184,7 @@ while kkt_violation > tol
     disp("cost: " + f_)
     disp("alpha: " + alpha)
     disp("m1: " + m1_)
+    disp("sigma: " + sigma_)
     
     w_history = [w_history, w_];
     kkt_violation_history = [kkt_violation_history, kkt_violation];
@@ -187,14 +198,19 @@ end
 
 
 %extract w_state
-figure(1)
 state_trajectory = w_(1:ns);
 for i = 1:n_step
 
     state_trajectory = [state_trajectory, w_(i*(ns+nu)+1:i*(ns+nu)+ns)];
 end
-plot(state_trajectory.')
-title("input history")
+
+
+figure(1)
+title("state trajectory")
+plot(times, state_trajectory', 'lineWidth', 1.5)
+xlabel("Time")
+grid on
+legend(["$w$", "$\theta$", "$v$", "$\omega$"])
 
 figure(2)
 input_trajectory = w_(ns+1:ns+nu);
@@ -203,11 +219,13 @@ for i = 1:n_step-1
 end
 plot(input_trajectory, 'lineWidth', 1.5, 'Marker', 'x')
 xlabel("Iteration")
-title("w history")
-figure(3)
+title("input trajectory")
+
+figure(3)Filippo Smaldone ha creato il gruppo «WIP»
 plot(alpha_history, 'lineWidth', 1.5, 'Marker', 'x')
 xlabel("Iteration")
 title("alpha history")
+
 figure(4)
 semilogy(kkt_violation_history, 'lineWidth', 1.5), grid on
 xlabel("Iteration")
