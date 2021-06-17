@@ -10,7 +10,7 @@ addpath('..')
 
 global n_step d_step t_init s_init s_fin ns nu n_int int_step state_coeff input_coeff
 s_init = [0;0;0;0];
-s_fin = [0;2;0;0];
+s_fin = [2;0;0;0];
 nu = 1;
 % problem parameters
 M = 1;
@@ -22,19 +22,19 @@ state_coeff = [100 0 0 0;
                  0 1 0 0;
                  0 0 0.1 0;
                  0 0 0 0.1];
-state_coeff = 0.001*state_coeff;
+state_coeff = 0.00001*state_coeff;
 input_coeff = 0.001;
 % optimization horizon
 t_init = 0;
 t_fin = 2;
-n_step = 20;
+n_step = 40;
 times = linspace(t_init,t_fin,n_step+1);
 d_step = (t_fin-t_init)/n_step;
 u_guess = zeros(n_step * nu, 1);
 % integration horizon
 % each optimization interval do n_int integration steps of duration
 % int_step
-n_int = 10;
+n_int = 20;
 int_step = d_step / n_int;
 
 ns = length(s_init);
@@ -122,8 +122,8 @@ alpha_history = [];
 
 while kkt_violation > tol
     
-    opts.ConvexCheck = 'off';
-    [deltaw_,~,~,~,multipliers_] = quadprog(B_, nablaf_, nablah_.', -h_, nablag_.', -g_, [], [], [], opts);
+    %opts.ConvexCheck = 'off';
+    [deltaw_,~,~,~,multipliers_] = quadprog(B_, nablaf_, nablah_.', -h_, nablag_.', -g_, [], [], []);%, opts);
     lambda_plus = multipliers_.eqlin;
     mu_plus = multipliers_.ineqlin;
 
