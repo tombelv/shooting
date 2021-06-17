@@ -10,7 +10,7 @@ addpath('..')
 
 global n_step d_step t_init s_init s_fin ns nu n_int int_step state_coeff input_coeff
 s_init = [0;0;0;0];
-s_fin = [2;0;0;0];
+s_fin = [0;2;0;0];
 nu = 1;
 % problem parameters
 M = 1;
@@ -22,7 +22,7 @@ state_coeff = [100 0 0 0;
                  0 1 0 0;
                  0 0 0.1 0;
                  0 0 0 0.1];
-state_coeff = 0.01*state_coeff;
+state_coeff = 0.001*state_coeff;
 input_coeff = 0.001;
 % optimization horizon
 t_init = 0;
@@ -34,7 +34,7 @@ u_guess = zeros(n_step * nu, 1);
 % integration horizon
 % each optimization interval do n_int integration steps of duration
 % int_step
-n_int = 20;
+n_int = 10;
 int_step = d_step / n_int;
 
 ns = length(s_init);
@@ -73,7 +73,7 @@ tol = 1e-4;
 w_init = u_guess;
 nw = length(w_init);
 sigma_coeff = 2;
-sigma_init = 0;
+sigma_init = 1;
 damping_coeff = 0.5;
 
 linesearch = 'MERIT';
@@ -201,7 +201,7 @@ end
 state_trajectory = [s_init];
 for k=1:n_step
     tk = t_init + k*d_step;
-    [s,~,~] = expl_rk4(tk,state_trajectory(:,k),w_(k),eye(ns),zeros(ns,nu),int_step,n_int);
+    [s,~,~] = expl_rk4_numerical(tk,state_trajectory(:,k),w_(k),eye(ns),zeros(ns,nu),int_step,n_int);
     state_trajectory = [state_trajectory, s];
 end
 
