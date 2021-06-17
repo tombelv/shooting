@@ -12,12 +12,12 @@ M = 1;
 m = 1;
 l = 1;
 gravity = 9.81;
-u_max = 40;
+u_max = 20;
 state_coeff = [100 0 0 0;
                  0 1 0 0;
                0 0 0.1 0;
                  0 0 0 0.1];
-state_coeff = 0.01*state_coeff;
+state_coeff = 0.00001*state_coeff;
 input_coeff = 0.001;
 % optimization horizon
 t_init = 0;
@@ -33,7 +33,7 @@ s = sym('s', [ns 1]);
 % integration horizon
 % each optimization interval do n_int integration steps of duration
 % int_step
-n_int = 10;
+n_int = 20;
 int_step = d_step / n_int;
 times = linspace(t_init,t_fin,n_step+1);
 
@@ -43,12 +43,12 @@ iters = 1;
 tol = 1e-4;
 u_init = 0;
 w_init = s_init;
-for i=1:n_step
+for i=1:n_step/2
     w_init = [w_init; u_init; s_init];
 end
-% for i=1:n_step
-%     w_init = [w_init; u_init; s_fin];
-% end
+for i=(n_step/2+1):n_step
+    w_init = [w_init; u_init; s_fin];
+end
 nw = length(w_init);
 sigma_coeff = 2;
 sigma_init = 0;
@@ -165,9 +165,9 @@ while kkt_violation > tol
 %         sigma_ = sigma_coeff*norm(lambda_,inf);
 %     end
     
-    sigma_ = sigma_init;
     if (norm(lambda_,inf) > sigma_) 
         sigma_ = norm(lambda_,inf)+1;
+    
     end
     
     m1_ = m1(w_, sigma_);
@@ -221,7 +221,7 @@ plot(input_trajectory, 'lineWidth', 1.5, 'Marker', 'x')
 xlabel("Iteration")
 title("input trajectory")
 
-figure(3)Filippo Smaldone ha creato il gruppo «WIP»
+figure(3)
 plot(alpha_history, 'lineWidth', 1.5, 'Marker', 'x')
 xlabel("Iteration")
 title("alpha history")
