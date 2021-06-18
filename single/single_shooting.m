@@ -10,8 +10,8 @@ function [R, nablaR] = single_shooting(u_guess, s0)
     dxdw = zeros(ns, n_step * nu);
     nablaR(:,1:ns) = dxdw.';
     %increment for linearly growing reference for theta
-    delta_theta = s_fin(2)/n_step;
-    theta_ref = 0;
+    delta_theta = (s_fin(2)-s_init(2))/n_step;
+    theta_ref = s_init(2);
     
     % single shooting
     for k = 0:(n_step - 1)
