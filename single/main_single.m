@@ -10,7 +10,7 @@ addpath('..')
 
 global n_step d_step t_init s_init s_fin ns nu n_int int_step state_coeff input_coeff
 s_init = [0;0;0;0];
-s_fin = [2;0;0;0];
+s_fin = [0;pi;0;0];
 nu = 1;
 % problem parameters
 M = 1;
@@ -18,11 +18,11 @@ m = 1;
 l = 1;
 gravity = 9.81;
 u_max = 20;
-state_coeff = [100 0 0 0;
+state_coeff = [0.1 0 0 0;
                  0 1 0 0;
                  0 0 0.1 0;
                  0 0 0 0.1];
-state_coeff = 0.00001*state_coeff;
+state_coeff = 0.01*state_coeff;
 input_coeff = 0.001;
 % optimization horizon
 t_init = 0;
@@ -31,6 +31,10 @@ n_step = 40;
 times = linspace(t_init,t_fin,n_step+1);
 d_step = (t_fin-t_init)/n_step;
 u_guess = zeros(n_step * nu, 1);
+u_guess(1:(n_step * nu)/4) = 0*ones((n_step * nu)/4,1);
+u_guess((n_step * nu)/4+1:(n_step * nu)/2) = 10*ones((n_step * nu)/4,1);
+u_guess((n_step * nu)/2+1:(n_step * nu)*3/4) = -10*ones((n_step * nu)/4,1);
+u_guess((n_step * nu)*3/4+1:end) = -10*ones((n_step * nu)/4,1);
 % integration horizon
 % each optimization interval do n_int integration steps of duration
 % int_step
@@ -233,6 +237,7 @@ figure(4)
 semilogy(kkt_violation_history, 'lineWidth', 1.5), grid on
 xlabel("Iteration")
 title("KKT violation")
+%saveas(gcf,'1_alpha','epsc')
 
 
 %%
