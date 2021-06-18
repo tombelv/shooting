@@ -27,7 +27,7 @@ input_coeff = 0.001;
 % optimization horizon
 t_init = 0;
 t_fin = 2;
-n_step = 80;
+n_step = 40;
 times = linspace(t_init,t_fin,n_step+1);
 d_step = (t_fin-t_init)/n_step;
 u_guess = zeros(n_step * nu, 1);
@@ -166,7 +166,6 @@ while kkt_violation > tol
 %          sigma_ = sigma_coeff*lambda_;
 %     end
     
-    sigma_ = sigma_init;
     if (norm(lambda_,inf) > sigma_) 
         sigma_ = norm(lambda_,inf);
     
