@@ -27,7 +27,7 @@ input_coeff = 0.001;
 % optimization horizon
 t_init = 0;
 t_fin = 2;
-n_step = 40;
+n_step = 80;
 times = linspace(t_init,t_fin,n_step+1);
 d_step = (t_fin-t_init)/n_step;
 u_guess = zeros(n_step * nu, 1);
@@ -77,7 +77,7 @@ tol = 1e-4;
 w_init = u_guess;
 nw = length(w_init);
 sigma_coeff = 2;
-sigma_init = 1;
+sigma_init = 0;
 damping_coeff = 0.5;
 
 linesearch = 'MERIT';
@@ -168,7 +168,7 @@ while kkt_violation > tol
     
     sigma_ = sigma_init;
     if (norm(lambda_,inf) > sigma_) 
-        sigma_ = norm(lambda_,inf)+0.01;
+        sigma_ = norm(lambda_,inf);
     
     end
     
